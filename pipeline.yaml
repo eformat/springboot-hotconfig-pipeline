@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  creationTimestamp: 2016-11-07T00:40:31Z
+  labels:
+    app: pipeline
+    name: pipeline
+  name: pipeline
+  namespace: cicd
+  resourceVersion: "356073"
+  selfLink: /oapi/v1/namespaces/cicd/buildconfigs/pipeline
+  uid: c949df28-a482-11e6-a778-525400b37d1b
+spec:
+  output: {}
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    type: None
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfile: "#!groovy\n\nnode('maven') {\n    \n  stage 'configure dev'\n  try
+        {\n    openshiftDeleteResourceByJsonYaml(showBuildLogs: 'true', namespace:
+        'development', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null}}')\n
+        \ } catch(all){\n    echo 'No ConfigMap found'\n  }\n  openshiftCreateResource(showBuildLogs:
+        'true', namespace: 'development', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null},\"data\":
+        {\"application.yaml\": \"helloservice:\\n  message: hello, spring cloud kubernetes
+        from Development !\"}}')\n \n  stage 'build & deploy in dev'\n  openshiftBuild(namespace:
+        'development',\n  \t\t\t    buildConfig: 'demo-s2i',\n\t\t\t    showBuildLogs:
+        'true',\n\t\t\t    waitTime: '3000000')\n  \n  stage 'verify deploy in dev'\n
+        \ openshiftVerifyDeployment(namespace: 'development',\n\t\t\t\t       depCfg:
+        'demo',\n\t\t\t\t       replicaCount:'1',\n\t\t\t\t       verifyReplicaCount:
+        'true',\n\t\t\t\t       waitTime: '300000')\n\n  stage 'configure test'\n
+        \ try {\n    openshiftDeleteResourceByJsonYaml(showBuildLogs: 'true', namespace:
+        'testing', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null}}')\n
+        \ } catch(all){\n    echo 'No ConfigMap found'\n  }\n  openshiftCreateResource(showBuildLogs:
+        'true', namespace: 'testing', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null},\"data\":
+        {\"application.yaml\": \"helloservice:\\n  message: hello, spring cloud kubernetes
+        from Testing !\"}}')\n  \n  stage 'deploy in test'\n  openshiftTag(namespace:
+        'development',\n  \t\t\t  sourceStream: 'demo',\n\t\t\t  sourceTag: 'latest',\n\t\t\t
+        \ destinationStream: 'demo',\n\t\t\t  destinationTag: 'promoteQA')\n  \n  openshiftDeploy(namespace:
+        'testing',\n  \t\t\t     deploymentConfig: 'demo',\n\t\t\t     waitTime: '300000')\n\n
+        \ openshiftScale(namespace: 'testing',\n  \t\t\t     deploymentConfig: 'demo',\n\t\t\t
+        \    waitTime: '300000',\n\t\t\t     replicaCount: '2')\n  \n  stage 'verify
+        deploy in test'\n  openshiftVerifyDeployment(namespace: 'testing',\n\t\t\t\t
+        \      depCfg: 'demo',\n\t\t\t\t       replicaCount:'2',\n\t\t\t\t       verifyReplicaCount:
+        'true',\n\t\t\t\t       waitTime: '300000')\n  \n  stage 'Deploy to production'\n
+        \ timeout(time: 2, unit: 'DAYS') {\n      input message: 'Approve to production?'\n
+        \ }\n\n  stage 'configure production'\n  try {\n    openshiftDeleteResourceByJsonYaml(showBuildLogs:
+        'true', namespace: 'production', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null}}')\n
+        \ } catch(all){\n    echo 'No ConfigMap found'\n  }\n  openshiftCreateResource(showBuildLogs:
+        'true', namespace: 'production', waitTime: '30000', json: '{\"kind\": \"ConfigMap\",\"apiVersion\":
+        \"v1\",\"metadata\": {\"name\": \"helloservice\",\"creationTimestamp\": null},\"data\":
+        {\"application.yaml\": \"helloservice:\\n  message: hello, spring cloud kubernetes
+        from Production!\"}}')\n\n  openshiftTag(namespace: 'development',\n  \t\t\t
+        \ sourceStream: 'demo',\n\t\t\t  sourceTag: 'latest',\n\t\t\t  destinationStream:
+        'demo',\n\t\t\t  destinationTag: 'promotePRD')\n\n  \n  openshiftDeploy(namespace:
+        'production',\n  \t\t\t     deploymentConfig: 'demo',\n\t\t\t     waitTime:
+        '300000')\n  \n  openshiftScale(namespace: 'production',\n  \t\t\t     deploymentConfig:
+        'demo',\n\t\t\t     waitTime: '300000',\n\t\t\t     replicaCount: '2')\n  \n
+        \ stage 'verify deploy in production'\n  openshiftVerifyDeployment(namespace:
+        'production',\n\t\t\t\t       depCfg: 'demo',\n\t\t\t\t       replicaCount:'2',\n\t\t\t\t
+        \      verifyReplicaCount: 'true',\n\t\t\t\t       waitTime: '300000')\n}"
+    type: JenkinsPipeline
+  triggers:
+  - github:
+      secret: secret101
+    type: GitHub
+  - generic:
+      secret: secret101
+    type: Generic
+status:
+  lastVersion: 6

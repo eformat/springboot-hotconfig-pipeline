@@ -1,0 +1,48 @@
+{
+    "kind": "BuildConfig",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "demo-s2i",
+        "creationTimestamp": null,
+        "labels": {
+            "group": "com.example",
+            "project": "demo",
+            "provider": "fabric8",
+            "version": "0.0.1-SNAPSHOT"
+        }
+    },
+    "spec": {
+        "triggers": [],
+        "runPolicy": "Serial",
+        "source": {
+            "type": "Git",
+            "git": {
+                "uri": "https://github.com/eformat/springboot-hotconfig-pipeline.git",
+                "httpProxy": "",
+                "httpsProxy": ""
+            }
+        },
+        "strategy": {
+            "type": "Source",
+            "sourceStrategy": {
+                "from": {
+                    "kind": "ImageStreamTag",
+                    "namespace": "openshift",
+                    "name": "s2i-java:1.3"
+                },
+                "incremental": true
+            }
+        },
+        "output": {
+            "to": {
+                "kind": "ImageStreamTag",
+                "name": "demo:latest"
+            }
+        },
+        "resources": {},
+        "postCommit": {}
+    },
+    "status": {
+        "lastVersion": 0
+    }
+}
