@@ -1,15 +1,11 @@
 apiVersion: v1
 kind: BuildConfig
 metadata:
-  creationTimestamp: 2016-11-07T00:40:31Z
+  creationTimestamp: null
   labels:
     app: pipeline
     name: pipeline
   name: pipeline
-  namespace: cicd
-  resourceVersion: "356073"
-  selfLink: /oapi/v1/namespaces/cicd/buildconfigs/pipeline
-  uid: c949df28-a482-11e6-a778-525400b37d1b
 spec:
   output: {}
   postCommit: {}
@@ -75,4 +71,4 @@ spec:
       secret: secret101
     type: Generic
 status:
-  lastVersion: 6
+  lastVersion: 0
