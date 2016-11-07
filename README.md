@@ -3,7 +3,7 @@
 Demonstrate pipeline promotion of both images and configuration
 
 Make use of SpringBoot hot redeploy (without jvm restart) of application properties
-combined with Openshift ConfigMaps to store the envireonment specific application properties
+combined with Openshift ConfigMaps to store the environment specific application properties
 
 Uses fabric8 maven for s2i development
 
