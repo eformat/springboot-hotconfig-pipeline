@@ -74,6 +74,7 @@ $ curl http://demo-development.192.168.137.3.xip.io/api/hello/mike
 
 ## Change our development build configuration to work as Git based S2I for our pipeline build
 ```
+oc import-image --insecure=true -n openshift docker.io/fabric8/s2i-java:1.3 --confirm
 oc delete bc demo-s2i
 oc create -f source-buildconfig.json
 ```
