@@ -7,6 +7,21 @@ combined with Openshift ConfigMaps to store the environment specific application
 
 Uses fabric8 maven for s2i development
 
+## Source code generation
+The source code was generated using
+```
+http://start.spring.io/
+-- add web, actuator
+-- download the demo.zip
+```
+
+git clone the code, unzip demo.zip and run the script over it to patch source code:
+
+```
+chmod 755 do-demo-spring-boot.sh
+./do-demo-spring-boot.sh
+```
+
 ## Create Openshift projects
 ```
 oc new-project cicd --display-name='CICD Jenkins' --description='CICD Jenkins'
